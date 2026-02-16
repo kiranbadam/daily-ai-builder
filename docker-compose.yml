@@ -1,0 +1,19 @@
+services:
+  ai-builder:
+    build: .
+    container_name: daily-ai-builder
+    env_file: .env
+    volumes:
+      - ai-builder-state:/app/state
+      - ai-builder-logs:/app/logs
+      - ai-builder-projects:/app/projects
+      - ai-builder-claude-auth:/root/.claude
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  ai-builder-state:
+  ai-builder-logs:
+  ai-builder-projects:
+  ai-builder-claude-auth:
