@@ -1,0 +1,14 @@
+{
+  "name": "robodevloop",
+  "version": "1.0.0",
+  "description": "Autonomous dev loop for your repos. One command setup.",
+  "bin": {
+    "robodevloop": "./index.js"
+  },
+  "keywords": ["ai", "autonomous", "coding", "claude", "devops", "automation"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kiranbadam/daily-ai-builder"
+  }
+}

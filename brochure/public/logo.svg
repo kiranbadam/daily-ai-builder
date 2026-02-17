@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <!-- Cyan glow for loop and head outline -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Intense glow for robot eyes -->
+    <filter id="eyeGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Gradient along the infinity loop -->
+    <linearGradient id="loopGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00d4ff"/>
+      <stop offset="45%" stop-color="#00b8e6"/>
+      <stop offset="55%" stop-color="#00b8e6"/>
+      <stop offset="100%" stop-color="#00d4ff"/>
+    </linearGradient>
+
+    <!-- Head outline gradient -->
+    <linearGradient id="headStroke" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#00d4ff"/>
+      <stop offset="100%" stop-color="#00a0c8"/>
+    </linearGradient>
+
+    <!-- Subtle dark fill for head interior -->
+    <linearGradient id="headFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#101820"/>
+      <stop offset="100%" stop-color="#0a0e12"/>
+    </linearGradient>
+
+    <!-- Left eye radial gradient -->
+    <radialGradient id="eyeGradL" cx="50%" cy="45%" r="50%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="35%" stop-color="#ff6688"/>
+      <stop offset="100%" stop-color="#ff3366"/>
+    </radialGradient>
+
+    <!-- Right eye radial gradient -->
+    <radialGradient id="eyeGradR" cx="50%" cy="45%" r="50%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="35%" stop-color="#ff6688"/>
+      <stop offset="100%" stop-color="#ff3366"/>
+    </radialGradient>
+  </defs>
+
+  <!-- ====== ROBOT HEAD ====== -->
+
+  <!-- Head body: rounded rectangle -->
+  <rect
+    x="10" y="3" width="28" height="24" rx="6" ry="6"
+    fill="url(#headFill)"
+    stroke="url(#headStroke)"
+    stroke-width="1.6"
+    filter="url(#glow)"
+  />
+
+  <!-- Antenna stem -->
+  <line x1="24" y1="3" x2="24" y2="0.5" stroke="#00d4ff" stroke-width="1" stroke-linecap="round"/>
+  <!-- Antenna tip -->
+  <circle cx="24" cy="0.5" r="1.2" fill="#00d4ff" opacity="0.8" filter="url(#glow)"/>
+
+  <!-- Ear panels -->
+  <rect x="7" y="11" width="3" height="8" rx="1.5" fill="none" stroke="#00d4ff" stroke-width="0.8" opacity="0.5"/>
+  <rect x="38" y="11" width="3" height="8" rx="1.5" fill="none" stroke="#00d4ff" stroke-width="0.8" opacity="0.5"/>
+
+  <!-- Left eye -->
+  <circle cx="18.5" cy="13.5" r="3.5" fill="url(#eyeGradL)" filter="url(#eyeGlow)"/>
+  <!-- Right eye -->
+  <circle cx="29.5" cy="13.5" r="3.5" fill="url(#eyeGradR)" filter="url(#eyeGlow)"/>
+
+  <!-- Eye inner highlights (tiny white specular dots) -->
+  <circle cx="17.5" cy="12.5" r="0.8" fill="#ffffff" opacity="0.9"/>
+  <circle cx="28.5" cy="12.5" r="0.8" fill="#ffffff" opacity="0.9"/>
+
+  <!-- Mouth: segmented bar -->
+  <rect x="18" y="21" width="12" height="1.4" rx="0.7" fill="#00d4ff" opacity="0.45"/>
+  <line x1="21" y1="20.3" x2="21" y2="22.4" stroke="#0a0e12" stroke-width="0.6"/>
+  <line x1="24" y1="20.3" x2="24" y2="22.4" stroke="#0a0e12" stroke-width="0.6"/>
+  <line x1="27" y1="20.3" x2="27" y2="22.4" stroke="#0a0e12" stroke-width="0.6"/>
+
+  <!-- ====== INFINITY LOOP ====== -->
+  <!--
+    The loop emerges from the bottom-left and bottom-right edges of the head,
+    forming a continuous figure-8 / infinity symbol beneath the robot head.
+    Uses quadratic bezier curves for smooth geometry.
+  -->
+  <path
+    d="M 13.5,27
+       C 7,30  4,35  8.5,40
+       C 13,45  20,44  24,38.5
+       C 28,44  35,45  39.5,40
+       C 44,35  41,30  34.5,27"
+    fill="none"
+    stroke="url(#loopGrad)"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    filter="url(#glow)"
+  />
+
+  <!-- Small diamond accent at infinity crossover point -->
+  <path d="M 24,36.5 L 25.2,38.5 L 24,40.5 L 22.8,38.5 Z" fill="#00d4ff" opacity="0.6"/>
+</svg>

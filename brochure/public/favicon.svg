@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <filter id="g" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <radialGradient id="e" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#fff"/>
+      <stop offset="40%" stop-color="#ff6688"/>
+      <stop offset="100%" stop-color="#ff3366"/>
+    </radialGradient>
+  </defs>
+  <!-- Head -->
+  <rect x="5" y="2" width="22" height="19" rx="5" fill="#101820" stroke="#00d4ff" stroke-width="1.5" filter="url(#g)"/>
+  <!-- Antenna -->
+  <line x1="16" y1="2" x2="16" y2="0" stroke="#00d4ff" stroke-width="1" stroke-linecap="round"/>
+  <circle cx="16" cy="0" r="1" fill="#00d4ff" opacity="0.8"/>
+  <!-- Eyes -->
+  <circle cx="11.5" cy="10" r="3" fill="url(#e)" filter="url(#g)"/>
+  <circle cx="20.5" cy="10" r="3" fill="url(#e)" filter="url(#g)"/>
+  <!-- Eye highlights -->
+  <circle cx="10.5" cy="9" r="0.7" fill="#fff" opacity="0.9"/>
+  <circle cx="19.5" cy="9" r="0.7" fill="#fff" opacity="0.9"/>
+  <!-- Mouth -->
+  <rect x="11" y="16" width="10" height="1.2" rx="0.6" fill="#00d4ff" opacity="0.45"/>
+  <!-- Infinity loop -->
+  <path d="M 8,21 C 3,24 1,28 5,30.5 C 9,33 14,32 16,28.5 C 18,32 23,33 27,30.5 C 31,28 29,24 24,21" fill="none" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round" filter="url(#g)"/>
+</svg>

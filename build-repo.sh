@@ -24,12 +24,22 @@ notify_success() {
   local feature="$1"
   local files_changed="$2"
   local build_attempts="$3"
+  local test_summary="$4"
   if [ -n "${WEBHOOK_URL:-}" ]; then
     local feature_plan
     feature_plan=$(cat "$FEATURE_FILE" 2>/dev/null | head -50)
     local commit_hash
     commit_hash=$(cd "$PROJECT_DIR" && git rev-parse --short HEAD 2>/dev/null || echo "unknown")
     local repo_url="https://github.com/$GITHUB_REPO"
+
+    # Build verification text based on SHIP_MODE
+    local ship_mode="${SHIP_MODE:-push}"
+    local verification_text
+    if [ "$ship_mode" = "pr" ]; then
+      verification_text="*✅ Verification:*\n• \`npm run build\` passed\n• AI Tester reviewed & issues fixed\n• PR opened on <${repo_url}|${GITHUB_REPO}> for review\n• Merge to deploy"
+    else
+      verification_text="*✅ Verification:*\n• \`npm run build\` passed\n• AI Tester reviewed & issues fixed\n• Pushed to <${repo_url}|${GITHUB_REPO}> main branch\n• Vercel auto-deploy triggered"
+    fi
 
     curl -s -X POST "$WEBHOOK_URL" \
       -H "Content-Type: application/json" \
@@ -43,6 +53,8 @@ notify_success() {
         --arg repo "$GITHUB_REPO" \
         --arg repo_url "$repo_url" \
         --arg plan "$feature_plan" \
+        --arg test_summary "$test_summary" \
+        --arg verification "$verification_text" \
         '{
           blocks: [
             {type:"header", text:{type:"plain_text", text:("🚀 AI Builder — Day " + $day + " Complete"), emoji:true}},
@@ -54,7 +66,8 @@ notify_success() {
               {type:"mrkdwn", text:("*🔨 Build Attempts:*\n" + $attempts + "/3")}
             ]},
             {type:"section", text:{type:"mrkdwn", text:("*What was built:*\n```" + ($plan | .[0:1500]) + "```")}},
-            {type:"section", text:{type:"mrkdwn", text:("*✅ Verification:*\n• `npm run build` passed\n• Pushed to <" + $repo_url + "|" + $repo + "> main branch\n• Vercel auto-deploy triggered")}},
+            {type:"section", text:{type:"mrkdwn", text:("*🧪 AI Tester Results:*\n" + $test_summary)}},
+            {type:"section", text:{type:"mrkdwn", text:$verification}},
             {type:"divider"},
             {type:"context", elements:[{type:"mrkdwn", text:("Next build: tomorrow at 5:00 AM Pacific (Day " + (($day | tonumber) + 1 | tostring) + ")")}]}
           ]
@@ -146,8 +159,9 @@ export GIT_LOG="$(git log --oneline -30 2>/dev/null || echo 'No commits yet')"
 export FILE_TREE="$(find . -type f -not -path './.git/*' -not -path './node_modules/*' | head -200 | sort)"
 export README_CONTENT="$(cat README.md 2>/dev/null || echo 'No README')"
 export CHANGELOG_CONTENT="$CHANGELOG"
+export FEEDBACK_CONTENT="$(cat AI_BUILDER_FEEDBACK.md 2>/dev/null || echo 'None')"
 
-ANALYSIS_PROMPT=$(envsubst '${GITHUB_REPO} ${DAY_NUMBER} ${FEATURE_PLAN_PATH} ${GIT_LOG} ${FILE_TREE} ${README_CONTENT} ${CHANGELOG_CONTENT}' < /app/prompts/analyze.md)
+ANALYSIS_PROMPT=$(envsubst '${GITHUB_REPO} ${DAY_NUMBER} ${FEATURE_PLAN_PATH} ${GIT_LOG} ${FILE_TREE} ${README_CONTENT} ${CHANGELOG_CONTENT} ${FEEDBACK_CONTENT}' < /app/prompts/analyze.md)
 
 ANALYSIS_OK=false
 for analysis_attempt in 1 2; do
@@ -230,6 +244,80 @@ if [ "$BUILD_SUCCESS" = false ]; then
   exit 1
 fi
 
+# --- Phase 3b: Test & Fix (Codex reviews, Claude fixes) ---
+echo ""
+echo ">>> Phase 3b: Test & Fix [$GITHUB_REPO]"
+echo "--------------------------------------------"
+
+TEST_FIX_ROUNDS=0
+MAX_TEST_FIX_ROUNDS=2
+TEST_SUMMARY=""
+ISSUES_FOUND=false
+
+for test_round in $(seq 1 $MAX_TEST_FIX_ROUNDS); do
+  TEST_FIX_ROUNDS=$test_round
+  echo "Test round $test_round of $MAX_TEST_FIX_ROUNDS..."
+
+  # Run Codex tester (writes AI_BUILDER_FEEDBACK.md if issues found)
+  /app/test-repo.sh "$GITHUB_REPO" || true
+
+  # Check if feedback was written
+  if [ ! -f "$PROJECT_DIR/AI_BUILDER_FEEDBACK.md" ]; then
+    if [ "$ISSUES_FOUND" = false ]; then
+      TEST_SUMMARY="No issues found — code passed all checks on first review."
+    else
+      TEST_SUMMARY="${TEST_SUMMARY}\n• ✅ Round $test_round: All issues verified fixed."
+    fi
+    echo "Codex found no issues — code is clean!"
+    break
+  fi
+
+  ISSUES_FOUND=true
+  echo "Codex found issues. Capturing feedback summary..."
+
+  # Capture the feedback for the Slack summary (extract section headers and first few items)
+  FEEDBACK=$(cat "$PROJECT_DIR/AI_BUILDER_FEEDBACK.md")
+  ROUND_ISSUES=$(echo "$FEEDBACK" | grep -E '^## |^- ' | head -15)
+  TEST_SUMMARY="${TEST_SUMMARY}\n• 🔍 Round $test_round issues found:\n$(echo "$ROUND_ISSUES" | sed 's/^/    /')"
+
+  echo "Asking Claude to fix..."
+  claude -p "The AI Tester found these issues in the code you just built. Fix all of them:\n\n$FEEDBACK" \
+    --allowedTools "Bash,Read,Glob,Grep,Edit,Write" \
+    --max-turns 30
+
+  TEST_SUMMARY="${TEST_SUMMARY}\n• 🔧 Round $test_round: Claude fixed the issues above."
+
+  # Remove the feedback file after Claude processes it
+  rm -f "$PROJECT_DIR/AI_BUILDER_FEEDBACK.md"
+
+  # Re-verify build after fixes
+  echo "Re-verifying build after fixes..."
+  rm -f "$PROJECT_DIR/.next/lock"
+  if ! npm run build 2>/tmp/build-error.log; then
+    BUILD_ERROR=$(cat /tmp/build-error.log)
+    echo "Build broke after fix attempt. Asking Claude to fix build..."
+    claude -p "The build failed after fixing tester feedback. Fix these errors:\n\n$BUILD_ERROR" \
+      --allowedTools "Bash,Read,Glob,Grep,Edit,Write" \
+      --max-turns 20
+
+    rm -f "$PROJECT_DIR/.next/lock"
+    if ! npm run build 2>/dev/null; then
+      echo "WARNING: Build still failing after test-fix round $test_round. Continuing anyway."
+    fi
+  fi
+  echo "Build OK after test-fix round $test_round."
+done
+
+# If we exhausted all rounds and last round still had issues
+if [ "$test_round" -eq "$MAX_TEST_FIX_ROUNDS" ] && [ "$ISSUES_FOUND" = true ] && [ -z "$(echo "$TEST_SUMMARY" | grep 'verified fixed')" ]; then
+  TEST_SUMMARY="${TEST_SUMMARY}\n• ⚠️ Max test rounds reached. Fixes applied but not re-verified by tester."
+fi
+
+# Clean up any leftover feedback file before commit
+rm -f "$PROJECT_DIR/AI_BUILDER_FEEDBACK.md"
+
+echo "Test & Fix complete ($TEST_FIX_ROUNDS round(s))."
+
 # --- Phase 4: Commit & Push ---
 echo ""
 echo ">>> Phase 4: Commit & Push [$GITHUB_REPO]"
@@ -245,29 +333,91 @@ if git diff --quiet HEAD && [ -z "$(git ls-files --others --exclude-standard)" ]
 fi
 
 FILES_CHANGED=$(git diff --stat | tail -1 | sed 's/^ *//')
-git add -A
-git commit -m "Day $DAY: $FEATURE_SUMMARY"
 
-# Push with retry (in case of transient network issues)
-PUSH_OK=false
-for push_attempt in 1 2 3; do
-  if git push origin main 2>/tmp/push-error.log; then
-    PUSH_OK=true
-    break
+# Determine ship mode (default: push)
+SHIP_MODE="${SHIP_MODE:-push}"
+echo "Ship mode: $SHIP_MODE"
+
+if [ "$SHIP_MODE" = "pr" ]; then
+  # --- PR mode: create feature branch, push, open PR ---
+  BRANCH_NAME="robodevloop/day-$DAY-$(date +%Y%m%d)"
+  echo "Creating feature branch: $BRANCH_NAME"
+  git checkout -b "$BRANCH_NAME"
+
+  git add -A
+  git commit -m "Day $DAY: $FEATURE_SUMMARY"
+
+  # Push feature branch with retry
+  PUSH_OK=false
+  for push_attempt in 1 2 3; do
+    if git push origin "$BRANCH_NAME" 2>/tmp/push-error.log; then
+      PUSH_OK=true
+      break
+    fi
+    echo "Push failed (attempt $push_attempt), retrying in 5s..."
+    sleep 5
+  done
+
+  if [ "$PUSH_OK" = false ]; then
+    echo "FAILED: Could not push branch after 3 attempts."
+    PUSH_ERROR=$(cat /tmp/push-error.log)
+    echo "$PUSH_ERROR"
+    git checkout main
+    notify_failure "Push failed after 3 attempts on Day $DAY: $PUSH_ERROR"
+    exit 1
   fi
-  echo "Push failed (attempt $push_attempt), retrying in 5s..."
-  sleep 5
-done
 
-if [ "$PUSH_OK" = false ]; then
-  echo "FAILED: Could not push after 3 attempts."
-  PUSH_ERROR=$(cat /tmp/push-error.log)
-  echo "$PUSH_ERROR"
-  notify_failure "Push failed after 3 attempts on Day $DAY: $PUSH_ERROR"
-  exit 1
+  echo "Pushed to origin/$BRANCH_NAME"
+
+  # Open pull request
+  PR_BODY="## Day $DAY: $FEATURE_SUMMARY
+
+### Feature Plan
+$(cat "$FEATURE_FILE" 2>/dev/null | head -50)
+
+---
+*Built automatically by [RoboDevLoop](https://github.com/$GITHUB_REPO) — AI-powered daily builder.*"
+
+  echo "Opening pull request..."
+  gh pr create \
+    --title "Day $DAY: $FEATURE_SUMMARY" \
+    --body "$PR_BODY" \
+    --base main \
+    --head "$BRANCH_NAME" || {
+      echo "WARNING: Failed to create PR. Branch was pushed — you can open the PR manually."
+    }
+
+  # Switch back to main for next run
+  git checkout main
+
+  echo "PR opened for Day $DAY"
+
+else
+  # --- Push mode (default): commit and push directly to main ---
+  git add -A
+  git commit -m "Day $DAY: $FEATURE_SUMMARY"
+
+  # Push with retry (in case of transient network issues)
+  PUSH_OK=false
+  for push_attempt in 1 2 3; do
+    if git push origin main 2>/tmp/push-error.log; then
+      PUSH_OK=true
+      break
+    fi
+    echo "Push failed (attempt $push_attempt), retrying in 5s..."
+    sleep 5
+  done
+
+  if [ "$PUSH_OK" = false ]; then
+    echo "FAILED: Could not push after 3 attempts."
+    PUSH_ERROR=$(cat /tmp/push-error.log)
+    echo "$PUSH_ERROR"
+    notify_failure "Push failed after 3 attempts on Day $DAY: $PUSH_ERROR"
+    exit 1
+  fi
+
+  echo "Pushed to origin/main"
 fi
-
-echo "Pushed to origin/main"
 
 # --- Update state ---
 echo $((DAY + 1)) > "$STATE_DIR/day.txt"
@@ -275,7 +425,7 @@ echo -e "\n## Day $DAY — $(date '+%Y-%m-%d')\n$FEATURE_SUMMARY\n" >> "$STATE_D
 echo "State updated. Next run will be Day $((DAY + 1))."
 
 # --- Notify ---
-notify_success "$FEATURE_SUMMARY" "$FILES_CHANGED" "$BUILD_ATTEMPTS"
+notify_success "$FEATURE_SUMMARY" "$FILES_CHANGED" "$BUILD_ATTEMPTS" "$(echo -e "$TEST_SUMMARY")"
 
 echo ""
 echo "============================================"

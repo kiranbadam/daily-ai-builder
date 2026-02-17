@@ -9,19 +9,23 @@ set -euo pipefail
 source /app/.env.sh
 
 # --- Pre-flight: Check Claude auth ---
-echo "Checking Claude authentication..."
-if ! claude -p "reply with OK" --max-turns 1 2>/tmp/claude-auth-check.log; then
-  echo "ERROR: Claude authentication failed. Session may have expired."
-  echo "SSH into the DGX Spark and run: docker exec -it daily-ai-builder claude login"
-  cat /tmp/claude-auth-check.log
-  if [ -n "${WEBHOOK_URL:-}" ]; then
-    curl -s -X POST "$WEBHOOK_URL" \
-      -H "Content-Type: application/json" \
-      -d "{\"text\":\"❌ AI Builder — Claude auth expired. SSH in and run: docker exec -it daily-ai-builder claude login\"}" || true
+if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
+  echo "Using API key authentication — skipping Claude auth check."
+else
+  echo "Checking Claude authentication..."
+  if ! claude -p "reply with OK" --max-turns 1 2>/tmp/claude-auth-check.log; then
+    echo "ERROR: Claude authentication failed. Session may have expired."
+    echo "SSH into the DGX Spark and run: docker exec -it daily-ai-builder claude login"
+    cat /tmp/claude-auth-check.log
+    if [ -n "${WEBHOOK_URL:-}" ]; then
+      curl -s -X POST "$WEBHOOK_URL" \
+        -H "Content-Type: application/json" \
+        -d "{\"text\":\"❌ AI Builder — Claude auth expired. SSH in and run: docker exec -it daily-ai-builder claude login\"}" || true
+    fi
+    exit 1
   fi
-  exit 1
+  echo "Claude auth OK"
 fi
-echo "Claude auth OK"
 
 # --- Set up log ---
 LOG_FILE="/app/logs/$(date '+%Y-%m-%d').log"
