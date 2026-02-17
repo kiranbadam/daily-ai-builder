@@ -8,6 +8,8 @@ import {
   features,
   setupSteps,
   reliability,
+  risks,
+  precautions,
   faqs,
   terminalDemo,
 } from "../src/content/brochure-content";
@@ -21,6 +23,26 @@ type TerminalLineType = "command" | "blank" | "output" | "success";
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+/** Render text with {dreams} wrapped in magical purple sparkle span. */
+function renderMagicText(text: string): React.ReactNode {
+  const parts = text.split(/\{dreams\}/g);
+  if (parts.length === 1) return text;
+  return parts.reduce<React.ReactNode[]>((acc, part, i) => {
+    if (i > 0) {
+      acc.push(
+        <span key={`magic-${i}`} className="magic-text">
+          <span className="sparkle sparkle-1" />
+          <span className="sparkle sparkle-2" />
+          <span className="sparkle sparkle-3" />
+          dreams
+        </span>
+      );
+    }
+    acc.push(part);
+    return acc;
+  }, []);
+}
 
 /** Map a terminalDemo line type to the appropriate CSS class suffix. */
 function terminalLineClass(type: TerminalLineType): string {
@@ -87,6 +109,7 @@ export default function Home() {
           <a href="#" className="nav-logo">
             <img src="/logo.svg" alt="RoboDevLoop" width={28} height={28} />
             RoboDevLoop
+            <span className="alpha-badge">ALPHA</span>
           </a>
           <div className="nav-links">
             <a href="#how-it-works">How It Works</a>
@@ -106,7 +129,7 @@ export default function Home() {
         <div className="container">
           <p className="eyebrow">{brand.eyebrow}</p>
           <h1>{brand.tagline}</h1>
-          <p className="hero-subtitle">{brand.subhead}</p>
+          <p className="hero-subtitle">{renderMagicText(brand.subhead)}</p>
 
           {/* Animated Terminal */}
           <div className="hero-terminal terminal" ref={terminalRef}>
@@ -173,7 +196,7 @@ export default function Home() {
                 <div className="pipeline-phase">PHASE {phase.phase}</div>
                 <div className="pipeline-icon">{phase.icon}</div>
                 <h3>{phase.title}</h3>
-                <p>{phase.summary}</p>
+                <p>{renderMagicText(phase.summary)}</p>
               </div>
             ))}
           </div>
@@ -253,13 +276,57 @@ export default function Home() {
       </section>
 
       {/* ----------------------------------------------------------------- */}
-      {/* 8. Get Started                                                    */}
+      {/* 8. Risks & Precautions                                           */}
+      {/* ----------------------------------------------------------------- */}
+      <section className="section risks-section">
+        <div className="container">
+          <div className="section-header reveal">
+            <p className="eyebrow">Heads Up</p>
+            <h2>Risks &amp; Precautions</h2>
+            <p className="section-subtitle">
+              RoboDevLoop is powerful. With great autonomy comes great responsibility.
+            </p>
+          </div>
+          <div className="risks-grid">
+            {risks.map((risk, i) => (
+              <div key={i} className="risk-card reveal">
+                <div className="risk-icon">{risk.icon}</div>
+                <h3>{risk.title}</h3>
+                <p>{risk.description}</p>
+              </div>
+            ))}
+          </div>
+          <div className="precautions reveal">
+            <h3>Precautions</h3>
+            <ul className="precautions-list">
+              {precautions.map((item, i) => (
+                <li key={i}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* ----------------------------------------------------------------- */}
+      {/* 9. Get Started                                                    */}
       {/* ----------------------------------------------------------------- */}
       <section id="get-started" className="section get-started">
         <div className="container">
           <div className="section-header reveal">
             <p className="eyebrow">Setup</p>
             <h2>Get started in 60 seconds</h2>
+          </div>
+          <div className="prereqs reveal">
+            <p className="prereqs-label">You&apos;ll need:</p>
+            <div className="prereqs-list">
+              <span className="prereq-item">Node.js 18+</span>
+              <span className="prereq-sep">&middot;</span>
+              <span className="prereq-item">Docker</span>
+              <span className="prereq-sep">&middot;</span>
+              <span className="prereq-item">GitHub token</span>
+              <span className="prereq-sep">&middot;</span>
+              <span className="prereq-item">Claude Max or API key</span>
+            </div>
           </div>
           <div className="steps">
             {setupSteps.map((step, i) => (

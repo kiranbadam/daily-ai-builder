@@ -1,9 +1,11 @@
 services:
   ai-builder:
+    image: kiranbadam/robodevloop:latest
     build: .
     container_name: daily-ai-builder
     env_file: .env
     volumes:
+      - ./repos.conf:/app/repos.conf:ro
       - ai-builder-state:/app/state
       - ai-builder-logs:/app/logs
       - ai-builder-projects:/app/projects

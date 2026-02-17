@@ -1,7 +1,7 @@
 export const brand = {
   name: "RoboDevLoop",
   tagline: "Ship While You Sleep",
-  subhead: "An autonomous agent that dreams up features, builds them, tests them, and ships them to your repos — while you sleep.",
+  subhead: "An autonomous agent that {dreams} up features, builds them, tests them, and ships them to your repos — while you sleep.",
   eyebrow: "// autonomous coding engaged",
   ctaPrimary: { label: "Get Started", href: "#get-started" },
   ctaSecondary: { label: "See How It Works", href: "#how-it-works" },
@@ -19,7 +19,7 @@ export const pipeline = [
   {
     phase: "01",
     title: "Ideate",
-    summary: "AI studies your repo and dreams up the highest-impact feature to build next.",
+    summary: "AI studies your repo and {dreams} up the highest-impact feature to build next.",
     details: "Reads git history, file tree, README, changelog, and owner feedback. Weighs gaps, user needs, and momentum. Picks ONE idea that moves the needle most.",
     icon: "\uD83D\uDCA1",
   },
@@ -104,15 +104,15 @@ export const features = [
 export const setupSteps = [
   {
     step: "1",
-    title: "Run the wizard",
+    title: "Run one command",
     command: "npx robodevloop",
-    description: "Interactive setup \u2014 configure repos, auth, schedule, and deploy target in 60 seconds.",
+    description: "The wizard clones the repo, walks you through config \u2014 repos, auth, schedule, ship mode \u2014 and deploys. All in 60 seconds.",
   },
   {
     step: "2",
-    title: "That's it.",
+    title: "There is no step 2.",
     command: null,
-    description: "There is no step 2. RoboDevLoop handles config, deploy, auth, and scheduling. Wake up to shipped features.",
+    description: "Seriously. That\u2019s it. RoboDevLoop is now running on your server, building features for your repos on autopilot. Go to sleep.",
   },
 ];
 
@@ -129,6 +129,33 @@ export const reliability = [
     title: "Full Audit Trail",
     description: "Daily logs, per-repo changelogs, feature plans, and webhook notifications. Complete transparency.",
   },
+];
+
+export const risks = [
+  {
+    title: "AI-Generated Code",
+    description: "Claude writes real code that ships to your repos. AI can introduce bugs, security issues, or breaking changes. Always review what gets built.",
+    icon: "\u26A0\uFE0F",
+  },
+  {
+    title: "Direct Push to Main",
+    description: "In push mode, changes go straight to main with no human review. Use PR mode for production repos or anything with real users.",
+    icon: "\uD83D\uDEA8",
+  },
+  {
+    title: "API & Token Usage",
+    description: "RoboDevLoop uses your GitHub token and Claude credits. Long builds consume API credits. Monitor usage and set budget alerts.",
+    icon: "\uD83D\uDCB3",
+  },
+];
+
+export const precautions = [
+  "Use PR mode (SHIP_MODE=pr) for any repo with real users or production traffic.",
+  "Start with a sandbox repo to understand what RoboDevLoop builds before pointing it at important projects.",
+  "Set up webhook notifications so you know what shipped while you slept.",
+  "Review the AI_BUILDER_FEEDBACK.md to steer the agent away from risky areas of your codebase.",
+  "Keep your GitHub token scoped to only the repos you want RoboDevLoop to access.",
+  "Monitor Claude API usage if using API key mode \u2014 daily builds add up.",
 ];
 
 export const faqs = [

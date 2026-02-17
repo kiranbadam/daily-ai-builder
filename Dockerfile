@@ -46,7 +46,7 @@ RUN mkdir -p /app/state /app/logs /app/projects /app/prompts /app/scripts
 RUN mkdir -p /root/.claude
 
 # Copy project files
-COPY entrypoint.sh daily-build.sh build-repo.sh test-repo.sh repos.conf dashboard.js /app/
+COPY entrypoint.sh daily-build.sh build-repo.sh test-repo.sh dashboard.js /app/
 COPY prompts/ /app/prompts/
 COPY scripts/ /app/scripts/
 

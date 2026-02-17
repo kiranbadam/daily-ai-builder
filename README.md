@@ -205,6 +205,70 @@ daily-ai-builder/
 
 ---
 
+## Release & Build Flow
+
+RoboDevLoop is distributed via two channels: a **Docker image** on Docker Hub and a **CLI wizard** on npm. When you make changes, here's how to release:
+
+### 1. Docker Image (container changes)
+
+Any changes to scripts (`entrypoint.sh`, `daily-build.sh`, `build-repo.sh`, `test-repo.sh`), prompts, `dashboard.js`, or `Dockerfile` require a new Docker image push.
+
+```bash
+# Build the image
+docker build -t kiranbadam/robodevloop:latest .
+
+# Push to Docker Hub
+docker login
+docker push kiranbadam/robodevloop:latest
+```
+
+Users running `docker compose up` will pull the latest image on next restart. To force an update on a running instance:
+
+```bash
+docker compose pull && docker compose up -d
+```
+
+### 2. npm Package (CLI wizard changes)
+
+Changes to `cli/index.js` require a new npm publish.
+
+```bash
+# 1. Bump the version in cli/package.json
+# 2. Update the VERSION constant in cli/index.js to match
+# 3. Publish
+cd cli
+npm login
+npm publish
+```
+
+> **Note:** npm requires 2FA or a granular access token with "Bypass 2FA on publish" enabled. Create one at https://www.npmjs.com/settings/tokens.
+
+### 3. Brochure (landing page changes)
+
+Changes to anything in `brochure/` require a Vercel redeploy.
+
+```bash
+cd brochure
+vercel --prod
+```
+
+### Full Release Checklist
+
+| What Changed | Action |
+|---|---|
+| Shell scripts, prompts, Dockerfile, dashboard | `docker build` + `docker push` |
+| CLI wizard (`cli/index.js`) | Bump version + `npm publish` |
+| Landing page (`brochure/`) | `vercel --prod` |
+| Everything | All three of the above |
+
+After any release, commit and push to GitHub:
+
+```bash
+git add -A && git commit -m "Release vX.Y.Z" && git push
+```
+
+---
+
 ## FAQ
 
 **Does it use API credits?**
