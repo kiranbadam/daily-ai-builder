@@ -114,6 +114,9 @@ export default function Home() {
             <a href="#how-it-works">How It Works</a>
             <a href="#features">Features</a>
             <a href="#one-command">Get Started</a>
+            <a href={brand.ctaGithub.href} className="nav-cta" target="_blank" rel="noopener noreferrer">
+              {brand.ctaGithub.label}
+            </a>
           </div>
         </div>
       </nav>
@@ -358,6 +361,9 @@ export default function Home() {
           <div className="hero-ctas">
             <a href={brand.ctaPrimary.href} className="btn btn-primary">
               {brand.ctaPrimary.label}
+            </a>
+            <a href={brand.ctaGithub.href} className="btn btn-outline" target="_blank" rel="noopener noreferrer">
+              {brand.ctaGithub.label}
             </a>
           </div>
         </div>
