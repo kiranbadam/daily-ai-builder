@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ============================================
-# Daily AI Builder — Multi-Repo Orchestrator
+# RoboDevLoop — Multi-Repo Orchestrator
 # ============================================
 
 # --- Step A: Source environment ---

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ============================================
-# Daily AI Builder — Single Repo Build (Hardened)
+# RoboDevLoop — Single Repo Build (Hardened)
 # Usage: build-repo.sh owner/repo
 # ============================================
 

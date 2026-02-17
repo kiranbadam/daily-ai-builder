@@ -4,3 +4,9 @@ node_modules/
 state/
 logs/
 projects/
+.DS_Store
+Thumbs.db
+*.key
+*.pem
+.vscode/
+.idea/
