@@ -6,7 +6,6 @@ import {
   stats,
   pipeline,
   features,
-  setupSteps,
   reliability,
   risks,
   precautions,
@@ -114,10 +113,7 @@ export default function Home() {
           <div className="nav-links">
             <a href="#how-it-works">How It Works</a>
             <a href="#features">Features</a>
-            <a href="#get-started">Get Started</a>
-            <a href={brand.ctaGithub.href} className="nav-cta">
-              {brand.ctaGithub.label}
-            </a>
+            <a href="#one-command">Get Started</a>
           </div>
         </div>
       </nav>
@@ -209,7 +205,7 @@ export default function Home() {
       {/* ----------------------------------------------------------------- */}
       {/* 5. One Line, That's It                                            */}
       {/* ----------------------------------------------------------------- */}
-      <section className="one-line section">
+      <section id="one-command" className="one-line section">
         <div className="container">
           <div className="section-header reveal">
             <h2>One command. That&apos;s literally it.</h2>
@@ -231,6 +227,28 @@ export default function Home() {
             <br />
             Wake up to shipped features.
           </p>
+          <div className="prereqs reveal">
+            <p className="prereqs-label">You&apos;ll need:</p>
+            <div className="prereqs-list">
+              <span className="prereq-item">Node.js 18+</span>
+              <span className="prereq-sep">&middot;</span>
+              <span className="prereq-item">Docker</span>
+              <span className="prereq-sep">&middot;</span>
+              <span className="prereq-item">GitHub token</span>
+              <span className="prereq-sep">&middot;</span>
+              <span className="prereq-item">Claude Max or API key</span>
+            </div>
+          </div>
+          <div className="prereqs reveal">
+            <p className="prereqs-label">Supported Platforms:</p>
+            <div className="prereqs-list">
+              <span className="prereq-item">Linux x86_64</span>
+              <span className="prereq-sep">&middot;</span>
+              <span className="prereq-item">Linux ARM64</span>
+              <span className="prereq-sep">&middot;</span>
+              <span className="prereq-item">macOS (Apple Silicon &amp; Intel)</span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -310,58 +328,6 @@ export default function Home() {
       {/* ----------------------------------------------------------------- */}
       {/* 9. Get Started                                                    */}
       {/* ----------------------------------------------------------------- */}
-      <section id="get-started" className="section get-started">
-        <div className="container">
-          <div className="section-header reveal">
-            <p className="eyebrow">Setup</p>
-            <h2>Get started in 60 seconds</h2>
-          </div>
-          <div className="prereqs reveal">
-            <p className="prereqs-label">You&apos;ll need:</p>
-            <div className="prereqs-list">
-              <span className="prereq-item">Node.js 18+</span>
-              <span className="prereq-sep">&middot;</span>
-              <span className="prereq-item">Docker</span>
-              <span className="prereq-sep">&middot;</span>
-              <span className="prereq-item">GitHub token</span>
-              <span className="prereq-sep">&middot;</span>
-              <span className="prereq-item">Claude Max or API key</span>
-            </div>
-          </div>
-          <div className="steps">
-            {setupSteps.map((step, i) => (
-              <div key={i} className="step reveal">
-                <div className="step-number">{step.step}</div>
-                <h3>{step.title}</h3>
-                <p>{step.description}</p>
-                {step.command && (
-                  <div className="step-terminal terminal">
-                    <div className="terminal-header">
-                      <span
-                        className="terminal-dot"
-                        style={{ background: "#ff5f57" }}
-                      />
-                      <span
-                        className="terminal-dot"
-                        style={{ background: "#febc2e" }}
-                      />
-                      <span
-                        className="terminal-dot"
-                        style={{ background: "#28c840" }}
-                      />
-                    </div>
-                    <div className="terminal-body">
-                      <div className="terminal-line terminal-command visible">
-                        $ {step.command}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ----------------------------------------------------------------- */}
       {/* 9. FAQ                                                            */}
@@ -392,9 +358,6 @@ export default function Home() {
           <div className="hero-ctas">
             <a href={brand.ctaPrimary.href} className="btn btn-primary">
               {brand.ctaPrimary.label}
-            </a>
-            <a href={brand.ctaGithub.href} className="btn btn-outline">
-              {brand.ctaGithub.label}
             </a>
           </div>
         </div>

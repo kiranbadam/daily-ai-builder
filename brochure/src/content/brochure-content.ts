@@ -3,7 +3,7 @@ export const brand = {
   tagline: "Ship While You Sleep",
   subhead: "An autonomous agent that {dreams} up features, builds them, tests them, and ships them to your repos — while you sleep.",
   eyebrow: "// autonomous coding engaged",
-  ctaPrimary: { label: "Get Started", href: "#get-started" },
+  ctaPrimary: { label: "Get Started", href: "#one-command" },
   ctaSecondary: { label: "See How It Works", href: "#how-it-works" },
   ctaGithub: { label: "Star on GitHub", href: "https://github.com/kiranbadam/daily-ai-builder" },
 };
