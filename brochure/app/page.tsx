@@ -230,13 +230,13 @@ export default function Home() {
           <div className="prereqs reveal">
             <p className="prereqs-label">You&apos;ll need:</p>
             <div className="prereqs-list">
-              <span className="prereq-item">Node.js 18+</span>
+              <a href="https://nodejs.org" className="prereq-item prereq-link" target="_blank" rel="noopener noreferrer">Node.js 18+</a>
               <span className="prereq-sep">&middot;</span>
-              <span className="prereq-item">Docker</span>
+              <a href="https://docs.docker.com/get-docker/" className="prereq-item prereq-link" target="_blank" rel="noopener noreferrer">Docker</a>
               <span className="prereq-sep">&middot;</span>
-              <span className="prereq-item">GitHub token</span>
+              <a href="https://github.com/settings/tokens" className="prereq-item prereq-link" target="_blank" rel="noopener noreferrer">GitHub token</a>
               <span className="prereq-sep">&middot;</span>
-              <span className="prereq-item">Claude Max or API key</span>
+              <a href="https://console.anthropic.com/" className="prereq-item prereq-link" target="_blank" rel="noopener noreferrer">Claude Max or API key</a>
             </div>
           </div>
           <div className="prereqs reveal">

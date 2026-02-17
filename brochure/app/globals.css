@@ -630,6 +630,17 @@ h3 {
   font-family: var(--font-mono);
 }
 
+a.prereq-link {
+  text-decoration: none;
+  color: var(--text);
+  transition: border-color 0.2s, color 0.2s;
+}
+
+a.prereq-link:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 .prereq-sep {
   color: var(--text-muted);
   font-size: 0.75rem;
